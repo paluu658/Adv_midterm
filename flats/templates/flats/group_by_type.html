@@ -1,0 +1,37 @@
+<!-- prettier-ignore -->
+{% extends "base.html" %}
+
+{% block title %}Group Flats by Type{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+  <h2 class="card-title mb-4">Group Flats by Type</h2>
+  <button class="btn btn-primary" id="group-flats">Group Flats</button>
+  <div id="grouped-flats" class="mt-4"></div>
+</div>
+
+<script>
+  document.getElementById('group-flats').addEventListener('click', async () => {
+    const response = await fetch('/api/v1/flats/group-by-type/')
+    const data = await response.json()
+    const groupedDiv = document.getElementById('grouped-flats')
+    if (response.ok) {
+      groupedDiv.innerHTML = `
+                <div class="list-group">
+                    ${data
+          .map(
+            (group) => `
+                        <a href="#" class="list-group-item list-group-item-action">
+                            ${group.flat_type}: <strong>${group.count}</strong> flats
+                        </a>
+                    `,
+          )
+          .join('')}
+                </div>
+            `
+    } else {
+      groupedDiv.innerHTML = `<div class="alert alert-danger">Failed to group flats.</div>`
+    }
+  })
+</script>
+{% endblock %}

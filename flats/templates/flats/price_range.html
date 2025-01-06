@@ -1,0 +1,65 @@
+<!-- prettier-ignore -->
+{% extends "base.html" %}
+
+{% block title %}Filter Flats by Price Range{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+  <h2 class="card-title mb-4">Filter Flats by Price Range</h2>
+  <form id="price-range-form" novalidate>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label for="min-price" class="form-label">Min Price</label>
+        <input type="number" class="form-control" id="min-price" name="min-price" placeholder="Enter min price"
+          required />
+        <div class="invalid-feedback">Please provide a minimum price.</div>
+      </div>
+      <div class="col-md-6">
+        <label for="max-price" class="form-label">Max Price</label>
+        <input type="number" class="form-control" id="max-price" name="max-price" placeholder="Enter max price"
+          required />
+        <div class="invalid-feedback">Please provide a maximum price.</div>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Filter</button>
+  </form>
+  <div id="price-range-results" class="mt-4"></div>
+</div>
+
+<script>
+  document
+    .getElementById('price-range-form')
+    .addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const form = e.target
+      if (!form.checkValidity()) {
+        form.classList.add('was-validated')
+        return
+      }
+      const minPrice = document.getElementById('min-price').value
+      const maxPrice = document.getElementById('max-price').value
+      const response = await fetch(
+        `/api/v1/flats/price-range/?min_price=${minPrice}&max_price=${maxPrice}`,
+      )
+      const data = await response.json()
+      const resultDiv = document.getElementById('price-range-results')
+      if (response.ok) {
+        resultDiv.innerHTML = `
+                <ul class="list-group">
+                    ${data
+            .map(
+              (flat) => `
+                        <li class="list-group-item">
+                            <strong>${flat.flat_type}</strong> - $${flat.resale_price} at ${flat.street_name}, ${flat.town}
+                        </li>
+                    `,
+            )
+            .join('')}
+                </ul>
+            `
+      } else {
+        resultDiv.innerHTML = `<div class="alert alert-danger">${data.error || 'No flats found in this range.'}</div>`
+      }
+    })
+</script>
+{% endblock %}

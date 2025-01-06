@@ -1,0 +1,17 @@
+<!-- prettier-ignore -->
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="jumbotron text-center p-5 bg-light shadow-sm">
+  <h1 class="display-4">Welcome to the Resale Flat Management System</h1>
+  <p class="lead">Manage and explore HDB resale flats with ease.</p>
+  <hr class="my-4" />
+  <p>Select an option below to get started:</p>
+  <div class="d-flex justify-content-center mt-4">
+    <a href="/flats/" class="btn btn-primary btn-lg mx-2">View Flats</a>
+    <a href="/flats/create/" class="btn btn-success btn-lg mx-2">Add New Flat</a>
+  </div>
+</div>
+{% endblock %}

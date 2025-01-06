@@ -1,0 +1,129 @@
+<!-- prettier-ignore -->
+{% extends "base.html" %}
+
+{% block title %}Create New Flat{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+    <h2 class="card-title mb-4">Create a New Flat</h2>
+    <form id="create-form" method="post" novalidate>
+        {% csrf_token %}
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="month" class="form-label">Month</label>
+                <input type="text" class="form-control" id="month" name="month" placeholder="YYYY-MM" required>
+                <div class="invalid-feedback">Please provide a valid month (e.g., 2024-04).</div>
+            </div>
+            <div class="col-md-6">
+                <label for="town" class="form-label">Town</label>
+                <input type="text" class="form-control" id="town" name="town" placeholder="Enter town (e.g., BISHAN)" required>
+                <div class="invalid-feedback">Please provide a town name.</div>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+            <div class="col-md-6">
+                <label for="flat_type" class="form-label">Flat Type</label>
+                <input type="text" class="form-control" id="flat_type" name="flat_type" placeholder="Enter flat type (e.g., 4 ROOM)" required>
+                <div class="invalid-feedback">Please provide a flat type.</div>
+            </div>
+            <div class="col-md-6">
+                <label for="block" class="form-label">Block</label>
+                <input type="text" class="form-control" id="block" name="block" placeholder="Enter block number (e.g., 567)" required>
+                <div class="invalid-feedback">Please provide a block number.</div>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+            <div class="col-md-6">
+                <label for="street_name" class="form-label">Street Name</label>
+                <input type="text" class="form-control" id="street_name" name="street_name" placeholder="Enter street name (e.g., BISHAN STREET 22)" required>
+                <div class="invalid-feedback">Please provide a street name.</div>
+            </div>
+            <div class="col-md-6">
+                <label for="storey_range" class="form-label">Storey Range</label>
+                <input type="text" class="form-control" id="storey_range" name="storey_range" placeholder="Enter storey range (e.g., 7 TO 9)" required>
+                <div class="invalid-feedback">Please provide a storey range.</div>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+            <div class="col-md-6">
+                <label for="floor_area_sqm" class="form-label">Floor Area (sqm)</label>
+                <input type="number" step="0.1" class="form-control" id="floor_area_sqm" name="floor_area_sqm" placeholder="Enter floor area in sqm (e.g., 85.0)" required>
+                <div class="invalid-feedback">Please provide a valid floor area.</div>
+            </div>
+            <div class="col-md-6">
+                <label for="flat_model" class="form-label">Flat Model</label>
+                <input type="text" class="form-control" id="flat_model" name="flat_model" placeholder="Enter flat model (e.g., Simplified)" required>
+                <div class="invalid-feedback">Please provide a flat model.</div>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+            <div class="col-md-6">
+                <label for="lease_commence_date" class="form-label">Lease Commence Date</label>
+                <input type="number" class="form-control" id="lease_commence_date" name="lease_commence_date" placeholder="Enter lease commence year (e.g., 1995)" required>
+                <div class="invalid-feedback">Please provide a lease commence year.</div>
+            </div>
+            <div class="col-md-6">
+                <label for="remaining_lease" class="form-label">Remaining Lease (Years)</label>
+                <input type="number" class="form-control" id="remaining_lease" name="remaining_lease" placeholder="Enter remaining lease in years (e.g., 45)" required>
+                <div class="invalid-feedback">Please provide the remaining lease years.</div>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+            <div class="col-md-6">
+                <label for="resale_price" class="form-label">Resale Price</label>
+                <input type="number" class="form-control" id="resale_price" name="resale_price" placeholder="Enter resale price (e.g., 420000.0)" required>
+                <div class="invalid-feedback">Please provide a valid resale price.</div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success mt-4">Create Flat</button>
+    </form>
+    <div id="create-result" class="mt-4"></div>
+</div>
+
+<script>
+    document.getElementById("create-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        if (!form.checkValidity()) {
+            form.classList.add("was-validated");
+            return;
+        }
+
+        // CSRF token from the form
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const formData = new FormData(form);
+        const flatData = Object.fromEntries(formData.entries());
+        const response = await fetch("/api/v1/flats/create/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken,  // Include CSRF token
+            },
+            body: JSON.stringify(flatData),
+        });
+        const resultDiv = document.getElementById("create-result");
+        const data = await response.json();
+        if (response.ok) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    Flat created successfully! Details:<br>
+                    <strong>${data.flat_type}</strong> at ${data.street_name}, ${data.town}.
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    ${data.error || "Failed to create flat. Please check the details and try again."}
+                </div>
+            `;
+        }
+    });
+</script>
+{% endblock %}

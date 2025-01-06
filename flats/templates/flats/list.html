@@ -1,0 +1,39 @@
+<!-- prettier-ignore -->
+{% extends "base.html" %}
+
+{% block title %}All Flats{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+  <h2 class="card-title mb-4">All Flats</h2>
+  <button class="btn btn-primary" id="fetch-flats">Fetch Flats</button>
+  <div id="flats-list" class="mt-4">
+    <p class="text-muted">Click the button to fetch all flats.</p>
+  </div>
+</div>
+
+<script>
+  document.getElementById('fetch-flats').addEventListener('click', async () => {
+    const response = await fetch('/api/v1/flats/')
+    const data = await response.json()
+    const listDiv = document.getElementById('flats-list')
+    if (response.ok) {
+      listDiv.innerHTML = `
+                <ul class="list-group">
+                    ${data
+                      .map(
+                        (flat) => `
+                        <li class="list-group-item">
+                            <strong>${flat.flat_type}</strong> at ${flat.street_name}, ${flat.town}
+                        </li>
+                    `,
+                      )
+                      .join('')}
+                </ul>
+            `
+    } else {
+      listDiv.innerHTML = `<div class="alert alert-danger">Failed to fetch flats.</div>`
+    }
+  })
+</script>
+{% endblock %}

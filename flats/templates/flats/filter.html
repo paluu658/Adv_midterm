@@ -1,0 +1,53 @@
+<!-- prettier-ignore -->
+{% extends "base.html" %}
+
+{% block title %}Filter Flats by Town{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+  <h2 class="card-title mb-4">Filter Flats by Town</h2>
+  <form id="filter-form" novalidate>
+    <div class="mb-3">
+      <label for="town" class="form-label">Town</label>
+      <input type="text" class="form-control" id="town" name="town" placeholder="Enter town name" required />
+      <div class="invalid-feedback">Please provide a town name.</div>
+    </div>
+    <button type="submit" class="btn btn-primary">Filter</button>
+  </form>
+  <div id="filtered-flats" class="mt-4"></div>
+</div>
+
+<script>
+  document
+    .getElementById('filter-form')
+    .addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const form = e.target
+      if (!form.checkValidity()) {
+        form.classList.add('was-validated')
+        return
+      }
+      const town = document.getElementById('town').value
+      const response = await fetch(`/api/v1/flats/filter/?town=${town}`)
+      const data = await response.json()
+      const resultDiv = document.getElementById('filtered-flats')
+      if (response.ok) {
+        resultDiv.innerHTML = `
+                <div class="list-group">
+                    ${data
+            .map(
+              (flat) => `
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <strong>${flat.flat_type}</strong> at ${flat.street_name}, ${flat.town}
+                        </a>
+                    `,
+            )
+            .join('')}
+                </div>
+            `
+      } else {
+        resultDiv.innerHTML = `<div class="alert alert-danger">${data.error || 'No flats found.'}</div>`
+      }
+    })
+</script>
+{% endblock %}

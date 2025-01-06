@@ -1,0 +1,41 @@
+<!-- prettier-ignore -->
+{% extends "base.html" %}
+
+{% block title %}Average Price by Town{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+  <h2 class="card-title mb-4">Average Price by Town</h2>
+  <button class="btn btn-primary" id="average-price">
+    Fetch Average Prices
+  </button>
+  <div id="average-prices" class="mt-4"></div>
+</div>
+
+<script>
+  document
+    .getElementById('average-price')
+    .addEventListener('click', async () => {
+      const response = await fetch('/api/v1/flats/average-price/')
+      const data = await response.json()
+      const avgDiv = document.getElementById('average-prices')
+      if (response.ok) {
+        avgDiv.innerHTML = `
+                <ul class="list-group">
+                    ${data
+                      .map(
+                        (avg) => `
+                        <li class="list-group-item">
+                            <strong>${avg.town}</strong>: $${avg.average_price.toFixed(2)}
+                        </li>
+                    `,
+                      )
+                      .join('')}
+                </ul>
+            `
+      } else {
+        avgDiv.innerHTML = `<div class="alert alert-danger">Failed to fetch average prices.</div>`
+      }
+    })
+</script>
+{% endblock %}
